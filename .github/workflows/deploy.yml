@@ -1,0 +1,94 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch: # Permite execução manual
+
+jobs:
+  deploy:
+    name: Deploy to Hostinger VPS
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npm run prisma:generate
+
+      - name: Build CSS
+        run: npx tailwindcss -i ./src/public/css/input.css -o ./src/public/css/output.css --minify
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          source: "."
+          target: ${{ secrets.VPS_DEPLOY_PATH }}
+          strip_components: 0
+          exclude: |
+            node_modules
+            .git
+            .github
+            .env
+            *.log
+            .DS_Store
+            prisma/database.db
+            prisma/database.db-journal
+            .vscode
+            .idea
+
+      - name: Execute deployment commands on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            cd ${{ secrets.VPS_DEPLOY_PATH }}
+            
+            # Carrega variáveis de ambiente se necessário
+            if [ -f .env ]; then
+              export $(cat .env | grep -v '^#' | xargs)
+            fi
+            
+            # Instala dependências
+            npm ci --production=false
+            
+            # Gera Prisma Client
+            npm run prisma:generate
+            
+            # Executa migrações do banco de dados
+            npm run prisma:migrate deploy
+            
+            # Compila CSS (caso não tenha sido compilado)
+            npx tailwindcss -i ./src/public/css/input.css -o ./src/public/css/output.css --minify
+            
+            # Reinicia a aplicação (ajuste conforme seu gerenciador de processos)
+            # Opção 1: PM2
+            if command -v pm2 &> /dev/null; then
+              pm2 restart app-offline || pm2 start server.js --name app-offline
+            # Opção 2: systemd
+            elif systemctl is-active --quiet app-offline.service; then
+              sudo systemctl restart app-offline
+            # Opção 3: Reiniciar manualmente (comentado)
+            # pkill -f "node server.js" && nohup node server.js > app.log 2>&1 &
+            fi
+            
+            echo "Deploy concluído com sucesso!"
+

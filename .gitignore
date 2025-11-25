@@ -8,3 +8,11 @@ dist/
 .vscode/
 .idea/
 
+# CI/CD
+*.pem
+*.key
+deploy.log
+
+# OS
+Thumbs.db
+
