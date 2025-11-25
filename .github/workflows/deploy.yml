@@ -70,6 +70,17 @@ jobs:
               exit 1
             fi
             
+            # Verifica se MySQL está instalado (aviso apenas, não bloqueia)
+            if ! command -v mysql &> /dev/null; then
+              echo "⚠️ MySQL não encontrado. Certifique-se de que o MySQL está instalado e rodando."
+              echo "Para instalar: sudo apt install mysql-server -y"
+            else
+              # Verifica se MySQL está rodando
+              if ! systemctl is-active --quiet mysql 2>/dev/null && ! systemctl is-active --quiet mysqld 2>/dev/null; then
+                echo "⚠️ MySQL não está rodando. Inicie com: sudo systemctl start mysql"
+              fi
+            fi
+            
             # Verifica se o arquivo .env existe (obrigatório)
             if [ ! -f .env ]; then
               echo "⚠️ Arquivo .env não encontrado!"
