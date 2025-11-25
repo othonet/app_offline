@@ -1,0 +1,53 @@
+/* Custom Scrollbar - Moderno e Minimalista */
+/* Webkit browsers (Chrome, Safari, Edge) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgb(203 213 225);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgb(148 163 184);
+}
+
+/* Dark mode scrollbar */
+.dark * {
+  scrollbar-color: rgb(55 65 81) transparent;
+}
+
+.dark *::-webkit-scrollbar-thumb {
+  background: rgb(55 65 81);
+}
+
+.dark *::-webkit-scrollbar-thumb:hover {
+  background: rgb(75 85 99);
+}
+
+/* Scrollbar com cor primária em elementos específicos (opcional) */
+.scrollbar-primary * {
+  scrollbar-color: rgb(2 132 199 / 0.5) transparent;
+}
+
+.scrollbar-primary *::-webkit-scrollbar-thumb {
+  background: rgb(2 132 199 / 0.5);
+}
+
+.scrollbar-primary *::-webkit-scrollbar-thumb:hover {
+  background: rgb(2 132 199 / 0.7);
+}
+

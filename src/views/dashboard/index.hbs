@@ -1,0 +1,22 @@
+<div class="space-y-6">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Dashboard</h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-2">Bem-vindo ao sistema de produção</p>
+    </div>
+
+    {{#if isAdmin}}
+    <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+        <p class="text-blue-800 dark:text-blue-200">
+            <strong>Administrador:</strong> Acesse a seção de <a href="/admin" class="underline font-semibold hover:text-blue-900 dark:hover:text-blue-100">Administração</a> para gerenciar todos os cadastros do sistema.
+        </p>
+    </div>
+    {{/if}}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Conteúdo do dashboard comum será adicionado aqui -->
+        <div class="card">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">Sistema de Produção</h3>
+            <p class="text-gray-600 dark:text-gray-400">Use o menu lateral para navegar pelas funcionalidades do sistema.</p>
+        </div>
+    </div>
+</div>

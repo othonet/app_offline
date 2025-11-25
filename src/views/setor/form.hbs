@@ -1,0 +1,68 @@
+<div class="mb-6">
+    <a href="/admin/setores" class="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 mb-4 inline-block">
+        ← Voltar para lista
+    </a>
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-2">{{title}}</h1>
+</div>
+
+{{#if error}}
+<div class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+    <p class="text-red-800 dark:text-red-200">{{error}}</p>
+</div>
+{{/if}}
+
+<div class="card max-w-2xl">
+    <form action="{{#if setor}}/admin/setores/{{setor.id}}{{else}}/admin/setores{{/if}}" method="POST">
+        <div class="space-y-4">
+            <div>
+                <label for="nome" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Nome <span class="text-red-500 dark:text-red-400">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="nome" 
+                    name="nome" 
+                    required
+                    value="{{#if setor}}{{setor.nome}}{{/if}}"
+                    class="input-field"
+                    placeholder="Digite o nome do setor"
+                >
+            </div>
+            
+            <div>
+                <label for="descricao" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Descrição
+                </label>
+                <textarea 
+                    id="descricao" 
+                    name="descricao" 
+                    rows="3"
+                    class="input-field"
+                    placeholder="Digite a descrição do setor"
+                >{{#if setor}}{{setor.descricao}}{{/if}}</textarea>
+            </div>
+            
+            <div>
+                <label class="flex items-center">
+                    <input 
+                        type="checkbox" 
+                        name="ativo" 
+                        {{#if setor}}{{#if setor.ativo}}checked{{/if}}{{else}}checked{{/if}}
+                        class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                    >
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Ativo</span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end space-x-3">
+            <a href="/admin/setores" class="btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn-primary">
+                {{#if setor}}Atualizar{{else}}Criar{{/if}} Setor
+            </button>
+        </div>
+    </form>
+</div>
+

@@ -1,0 +1,176 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  DIRETOR
+  ANALISTA
+  INSPETOR
+}
+
+model User {
+  id                String            @id @default(uuid())
+  username          String            @unique
+  password          String
+  name              String
+  email             String?
+  role              UserRole          @default(INSPETOR)
+  active            Boolean           @default(true)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  sessions          Session[]
+  apontamentosFruta ApontamentoFruta[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique @db.VarChar(1000)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+// Cadastros do sistema
+model Setor {
+  id          String   @id @default(uuid())
+  nome        String
+  descricao   String?
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("setores")
+}
+
+model Linha {
+  id          String   @id @default(uuid())
+  nome        String
+  descricao   String?
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("linhas")
+}
+
+model Valvula {
+  id                String            @id @default(uuid())
+  nome              String
+  descricao         String?
+  cabecaId          String
+  ativo             Boolean           @default(true)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  cabeca            Cabeca            @relation(fields: [cabecaId], references: [id], onDelete: Restrict)
+  apontamentosFruta ApontamentoFruta[]
+  estoqueFruta      EstoqueFruta[]
+
+  @@index([cabecaId])
+  @@map("valvulas")
+}
+
+model Cabeca {
+  id                String            @id @default(uuid())
+  nome              String
+  descricao         String?
+  ativo             Boolean           @default(true)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  valvulas          Valvula[]
+  apontamentosFruta ApontamentoFruta[]
+  estoqueFruta      EstoqueFruta[]
+
+  @@map("cabecas")
+}
+
+model PosicaoEmbalagem {
+  id          String   @id @default(uuid())
+  nome        String
+  descricao   String?
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("posicoes_embalagem")
+}
+
+model TipoCaixa {
+  id          String   @id @default(uuid())
+  nome        String
+  descricao   String?
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("tipos_caixa")
+}
+
+model Meta {
+  id          String   @id @default(uuid())
+  nome        String
+  descricao   String?
+  valor       Float?
+  unidade     String?
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("metas")
+}
+
+// Apontamentos operacionais
+model ApontamentoFruta {
+  id                String   @id @default(uuid())
+  numeroCarroca     String
+  cabecaId          String
+  valvulaId         String
+  variedade         String
+  numeroContentores Int
+  userId            String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  cabeca            Cabeca   @relation(fields: [cabecaId], references: [id], onDelete: Restrict)
+  valvula           Valvula  @relation(fields: [valvulaId], references: [id], onDelete: Restrict)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([cabecaId])
+  @@index([valvulaId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("apontamentos_fruta")
+}
+
+// Estoque de fruta recebida
+model EstoqueFruta {
+  id                    String   @id @default(uuid())
+  cabecaId              String
+  valvulaId             String
+  variedade             String
+  quantidadeContentores Int      @default(0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  cabeca                Cabeca   @relation(fields: [cabecaId], references: [id], onDelete: Restrict)
+  valvula               Valvula  @relation(fields: [valvulaId], references: [id], onDelete: Restrict)
+
+  @@unique([cabecaId, valvulaId, variedade])
+  @@index([cabecaId])
+  @@index([valvulaId])
+  @@index([variedade])
+  @@map("estoque_fruta")
+}
+

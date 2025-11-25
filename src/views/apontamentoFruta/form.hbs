@@ -1,0 +1,183 @@
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{title}}</h1>
+    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Registre o apontamento de recepção da fruta</p>
+</div>
+
+{{#if error}}
+<div class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+    <p class="text-red-800 dark:text-red-200">{{error}}</p>
+</div>
+{{/if}}
+
+{{#if success}}
+<div class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+    <p class="text-green-800 dark:text-green-200">{{success}}</p>
+    <p class="text-xs text-green-700 dark:text-green-300 mt-1">O apontamento foi registrado com data e hora precisas para garantir exclusividade.</p>
+</div>
+{{/if}}
+
+<div class="card max-w-4xl">
+    <form action="/apontamento-fruta" method="POST" id="apontamentoForm">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Coluna Esquerda -->
+            <div class="space-y-4">
+                <div>
+                    <label for="numeroCarroca" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Número da Carroça <span class="text-red-500 dark:text-red-400">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="numeroCarroca" 
+                        name="numeroCarroca" 
+                        required
+                        class="input-field"
+                        placeholder="Digite o número da carroça"
+                    >
+                </div>
+                
+                <div>
+                    <label for="cabecaId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Cabeça <span class="text-red-500 dark:text-red-400">*</span>
+                    </label>
+                    <select 
+                        id="cabecaId" 
+                        name="cabecaId" 
+                        required
+                        class="input-field"
+                    >
+                        <option value="">Selecione uma cabeça</option>
+                        {{#if cabecas}}
+                            {{#each cabecas}}
+                                <option value="{{id}}">{{nome}}</option>
+                            {{/each}}
+                        {{/if}}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="valvulaId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Válvula <span class="text-red-500 dark:text-red-400">*</span>
+                    </label>
+                    <select 
+                        id="valvulaId" 
+                        name="valvulaId" 
+                        required
+                        class="input-field"
+                        disabled
+                    >
+                        <option value="">Primeiro selecione uma cabeça</option>
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" id="valvulaHelp">As válvulas serão carregadas após selecionar uma cabeça</p>
+                </div>
+            </div>
+            
+            <!-- Coluna Direita -->
+            <div class="space-y-4">
+                <div>
+                    <label for="variedade" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Variedade da Fruta <span class="text-red-500 dark:text-red-400">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="variedade" 
+                        name="variedade" 
+                        required
+                        class="input-field"
+                        placeholder="Digite a variedade da fruta"
+                    >
+                </div>
+                
+                <div>
+                    <label for="numeroContentores" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Número de Contentores <span class="text-red-500 dark:text-red-400">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        id="numeroContentores" 
+                        name="numeroContentores" 
+                        required
+                        min="1"
+                        step="1"
+                        class="input-field"
+                        placeholder="Digite o número de contentores"
+                    >
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end space-x-3">
+            <button type="reset" class="btn-secondary">
+                Limpar
+            </button>
+            <button type="submit" class="btn-primary">
+                Registrar Apontamento
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cabecaSelect = document.getElementById('cabecaId');
+    const valvulaSelect = document.getElementById('valvulaId');
+    const valvulaHelp = document.getElementById('valvulaHelp');
+    
+    cabecaSelect.addEventListener('change', function() {
+        const cabecaId = this.value;
+        
+        // Limpa o select de válvulas
+        valvulaSelect.innerHTML = '<option value="">Carregando...</option>';
+        valvulaSelect.disabled = true;
+        
+        if (!cabecaId) {
+            valvulaSelect.innerHTML = '<option value="">Primeiro selecione uma cabeça</option>';
+            valvulaHelp.textContent = 'As válvulas serão carregadas após selecionar uma cabeça';
+            return;
+        }
+        
+        // Busca válvulas da cabeça selecionada
+        fetch(`/apontamento-fruta/valvulas/${cabecaId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar válvulas');
+                }
+                return response.json();
+            })
+            .then(valvulas => {
+                valvulaSelect.innerHTML = '<option value="">Selecione uma válvula</option>';
+                
+                if (valvulas.length === 0) {
+                    valvulaSelect.innerHTML = '<option value="">Nenhuma válvula encontrada para esta cabeça</option>';
+                    valvulaHelp.textContent = 'Nenhuma válvula ativa encontrada para esta cabeça';
+                } else {
+                    valvulas.forEach(valvula => {
+                        const option = document.createElement('option');
+                        option.value = valvula.id;
+                        option.textContent = valvula.nome;
+                        valvulaSelect.appendChild(option);
+                    });
+                    valvulaHelp.textContent = `${valvulas.length} válvula(s) disponível(is)`;
+                }
+                
+                valvulaSelect.disabled = false;
+            })
+            .catch(error => {
+                console.error('Erro ao buscar válvulas:', error);
+                valvulaSelect.innerHTML = '<option value="">Erro ao carregar válvulas</option>';
+                valvulaHelp.textContent = 'Erro ao carregar válvulas. Tente novamente';
+            });
+    });
+    
+    // Limpa o formulário após sucesso
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success')) {
+        setTimeout(() => {
+            document.getElementById('apontamentoForm').reset();
+            valvulaSelect.innerHTML = '<option value="">Primeiro selecione uma cabeça</option>';
+            valvulaSelect.disabled = true;
+            valvulaHelp.textContent = 'As válvulas serão carregadas após selecionar uma cabeça';
+        }, 3000);
+    }
+});
+</script>
+

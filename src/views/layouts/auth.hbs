@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} - Sistema de Produção</title>
+    <script>
+        // Aplica dark mode ANTES da renderização para evitar flash
+        (function() {
+            const storageKey = 'darkMode';
+            const savedPreference = localStorage.getItem(storageKey);
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            // Se não há preferência salva, usa a do sistema
+            const shouldBeDark = savedPreference !== null 
+                ? savedPreference === 'true' 
+                : prefersDark;
+            
+            if (shouldBeDark) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="/css/output.css">
+    <link rel="stylesheet" href="/css/scrollbar.css">
+    <script src="/js/dark-mode.js" defer></script>
+    <script src="/js/toast.js?v=6" defer></script>
+</head>
+<body class="min-h-screen flex transition-colors duration-200">
+    <!-- Lado Esquerdo: Logo e Imagem de Fundo -->
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 to-primary-800 dark:from-gray-900 dark:to-gray-800 relative overflow-hidden">
+        <!-- Imagem de fundo com overlay -->
+        <!-- Para usar uma imagem personalizada, substitua o style abaixo por: style="background-image: url('/images/login-bg.jpg');" -->
+        <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+        
+        <!-- Overlay escuro para melhor contraste do texto -->
+        <div class="absolute inset-0 bg-gradient-to-br from-primary-900/40 to-primary-700/20 dark:from-black/30 dark:to-gray-900/30"></div>
+        
+        <!-- Conteúdo do lado esquerdo - Posicionamento absoluto -->
+        <div class="relative z-10 w-full h-full flex flex-col p-12">
+            <!-- Logo no topo esquerdo -->
+            <div class="mb-auto">
+                <h1 class="text-3xl font-bold text-white">Sistema de Produção</h1>
+            </div>
+            
+            <!-- Texto no canto inferior esquerdo -->
+            <div class="mt-auto">
+                <p class="text-xl font-medium text-white mb-2">Acompanhando Desenvolvimento,</p>
+                <p class="text-xl font-medium text-white">Criando Resultados</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lado Direito: Formulário -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center bg-gray-900 dark:bg-gray-950 p-4 lg:p-12">
+        <div class="w-full max-w-md">
+            <!-- Logo pequeno para mobile -->
+            <div class="lg:hidden text-center mb-8">
+                <h1 class="text-3xl font-bold text-white mb-2">Sistema de Produção</h1>
+                <p class="text-gray-400">Acesso ao sistema</p>
+            </div>
+            
+            <!-- Conteúdo do Formulário -->
+            <div class="w-full">
+                <!-- Título e Subtítulo -->
+                <div class="mb-10">
+                    <h2 class="text-4xl font-bold text-white mb-3">{{#if isAdminLogin}}Acesso Administrativo{{else}}Acesso ao Sistema{{/if}}</h2>
+                    <p class="text-gray-400 text-lg">{{#if isAdminLogin}}Entre com suas credenciais de administrador{{else}}Entre com suas credenciais para continuar{{/if}}</p>
+                </div>
+                
+                {{{body}}}
+            </div>
+            
+            <!-- Footer e Dark Mode Toggle -->
+            <div class="mt-8 text-center">
+                <!-- Dark Mode Toggle -->
+                <button 
+                    type="button"
+                    onclick="toggleDarkMode()"
+                    data-dark-mode-toggle
+                    class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-800 dark:hover:bg-gray-800 transition-colors duration-200"
+                    title="Alternar modo escuro/claro"
+                >
+                    <!-- Sol (modo claro) -->
+                    <svg data-sun-icon class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    <!-- Lua (modo escuro) -->
+                    <svg data-moon-icon class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                    </svg>
+                </button>
+                <p class="text-gray-500 dark:text-gray-500 text-xs mt-4">
+                    © 2024 Sistema de Produção. Todos os direitos reservados.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

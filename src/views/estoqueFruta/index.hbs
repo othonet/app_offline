@@ -1,0 +1,121 @@
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Estoque de Fruta</h1>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Fruta recebida do campo disponível para processamento</p>
+    </div>
+</div>
+
+{{#if error}}
+<div class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+    <p class="text-red-800 dark:text-red-200">{{error}}</p>
+</div>
+{{/if}}
+
+{{#if success}}
+<div class="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+    <p class="text-green-800 dark:text-green-200">{{success}}</p>
+</div>
+{{/if}}
+
+<!-- Cards de resumo -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="card">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Total de Contentores</p>
+                <p class="text-3xl font-bold text-gray-800 dark:text-gray-100 mt-2">{{totalContentores}}</p>
+            </div>
+            <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
+                <svg class="w-6 h-6 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Variedades em Estoque</p>
+                <p class="text-3xl font-bold text-gray-800 dark:text-gray-100 mt-2">{{totalVariedades}}</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Itens no Estoque</p>
+                <p class="text-3xl font-bold text-gray-800 dark:text-gray-100 mt-2">{{#if estoques}}{{estoques.length}}{{else}}0{{/if}}</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{> table-controls}}
+
+<div class="card">
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Cabeça</th>
+                    <th>Válvula</th>
+                    <th>
+                        {{> sortable-header field="variedade" label="Variedade" currentSort=sort currentOrder=order baseUrl=baseUrl search=search pagination=pagination}}
+                    </th>
+                    <th>
+                        {{> sortable-header field="quantidadeContentores" label="Contentores" currentSort=sort currentOrder=order baseUrl=baseUrl search=search pagination=pagination}}
+                    </th>
+                    <th>
+                        {{> sortable-header field="updatedAt" label="Última Atualização" currentSort=sort currentOrder=order baseUrl=baseUrl search=search pagination=pagination}}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#if estoques}}
+                    {{#each estoques}}
+                    <tr>
+                        <td>
+                            <span class="px-2 py-1 text-xs font-medium rounded bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300">
+                                {{cabeca.nome}}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="px-2 py-1 text-xs font-medium rounded bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
+                                {{valvula.nome}}
+                            </span>
+                        </td>
+                        <td class="font-medium">{{variedade}}</td>
+                        <td>
+                            <span class="px-3 py-1 text-sm font-semibold rounded-full {{#if (gt quantidadeContentores 0)}}bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300{{else}}bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400{{/if}}">
+                                {{quantidadeContentores}}
+                            </span>
+                        </td>
+                        <td class="text-sm text-gray-600 dark:text-gray-400">
+                            {{formatDateTime updatedAt}}
+                        </td>
+                    </tr>
+                    {{/each}}
+                {{else}}
+                    <tr>
+                        <td colspan="5" class="text-center py-8 text-gray-500 dark:text-gray-400">
+                            Nenhum item em estoque. <a href="/apontamento-fruta" class="text-primary-600 dark:text-primary-400 hover:underline">Registre o primeiro apontamento</a>
+                        </td>
+                    </tr>
+                {{/if}}
+            </tbody>
+        </table>
+    </div>
+</div>
+

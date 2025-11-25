@@ -1,0 +1,21 @@
+{{!-- Partial para header ordenável --}}
+{{#if baseUrl}}
+<a href="{{baseUrl}}?sort={{field}}&order={{#if (and (eq currentSort field) (eq currentOrder 'asc'))}}desc{{else}}asc{{/if}}{{#if search}}&search={{search}}{{/if}}{{#if pagination}}{{#if pagination.itemsPerPage}}&limit={{pagination.itemsPerPage}}{{/if}}{{/if}}" 
+   class="flex items-center gap-1 hover:text-primary-600 dark:hover:text-primary-400">
+    {{label}}
+    {{#if (eq currentSort field)}}
+        {{#if (eq currentOrder 'asc')}}
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+            </svg>
+        {{else}}
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        {{/if}}
+    {{/if}}
+</a>
+{{else}}
+<span>{{label}}</span>
+{{/if}}
+
