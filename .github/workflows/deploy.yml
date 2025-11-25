@@ -92,12 +92,30 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || 22 }}
           script: |
-            # Cria o diretório se não existir
-            mkdir -p ${{ secrets.VPS_DEPLOY_PATH }}
-            cd ${{ secrets.VPS_DEPLOY_PATH }}
+            # Expandir ~ para o caminho completo se necessário
+            DEPLOY_PATH="${{ secrets.VPS_DEPLOY_PATH }}"
+            if [[ "$DEPLOY_PATH" == ~* ]]; then
+              DEPLOY_PATH="${DEPLOY_PATH/#\~/$HOME}"
+            fi
             
-            # Remove arquivos que não devem estar no deploy
-            rm -rf node_modules .git .github .env *.log .DS_Store prisma/database.db prisma/database.db-journal .vscode .idea 2>/dev/null || true
+            # Cria o diretório se não existir
+            mkdir -p "$DEPLOY_PATH"
+            cd "$DEPLOY_PATH"
+            
+            # Preservar .env se existir (fazer backup temporário)
+            if [ -f .env ]; then
+              echo "📋 Arquivo .env encontrado, fazendo backup..."
+              cp .env .env.backup
+            fi
+            
+            # Remove arquivos que não devem estar no deploy (mas preserva .env)
+            rm -rf node_modules .git .github *.log .DS_Store prisma/database.db prisma/database.db-journal .vscode .idea 2>/dev/null || true
+            
+            # Restaurar .env se existia
+            if [ -f .env.backup ]; then
+              echo "📋 Restaurando arquivo .env..."
+              mv .env.backup .env
+            fi
             
             # Verifica se Node.js está instalado
             if ! command -v node &> /dev/null; then
@@ -118,8 +136,20 @@ jobs:
             
             # Verifica se o arquivo .env existe (obrigatório)
             if [ ! -f .env ]; then
-              echo "⚠️ Arquivo .env não encontrado!"
-              echo "Por favor, crie o arquivo .env com as configurações necessárias antes do deploy."
+              echo "⚠️ Arquivo .env não encontrado no diretório: $(pwd)"
+              echo "📁 Conteúdo do diretório:"
+              ls -la
+              echo ""
+              echo "Por favor, crie o arquivo .env com as configurações necessárias."
+              echo "O arquivo .env NÃO é enviado pelo CI/CD (está no .gitignore)."
+              echo "Você precisa criá-lo manualmente na VPS antes do deploy."
+              echo ""
+              echo "Exemplo de .env:"
+              echo "NODE_ENV=production"
+              echo "PORT=3000"
+              echo "JWT_SECRET=seu-jwt-secret"
+              echo "JWT_EXPIRES_IN=15m"
+              echo "DATABASE_URL=\"mysql://usuario:senha@localhost:3306/app_offline\""
               exit 1
             fi
             
