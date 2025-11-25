@@ -30,6 +30,18 @@ jobs:
       - name: Build CSS
         run: npx tailwindcss -i ./src/public/css/input.css -o ./src/public/css/output.css --minify
 
+      - name: Verify SSH connection
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            echo "✅ Conexão SSH estabelecida com sucesso!"
+            pwd
+            whoami
+
       - name: Deploy to VPS via SSH
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -40,17 +52,7 @@ jobs:
           source: "."
           target: ${{ secrets.VPS_DEPLOY_PATH }}
           strip_components: 0
-          exclude: |
-            node_modules
-            .git
-            .github
-            .env
-            *.log
-            .DS_Store
-            prisma/database.db
-            prisma/database.db-journal
-            .vscode
-            .idea
+          rm: true
 
       - name: Execute deployment commands on VPS
         uses: appleboy/ssh-action@v1.0.3
@@ -63,6 +65,9 @@ jobs:
             # Cria o diretório se não existir
             mkdir -p ${{ secrets.VPS_DEPLOY_PATH }}
             cd ${{ secrets.VPS_DEPLOY_PATH }}
+            
+            # Remove arquivos que não devem estar no deploy
+            rm -rf node_modules .git .github .env *.log .DS_Store prisma/database.db prisma/database.db-journal .vscode .idea 2>/dev/null || true
             
             # Verifica se Node.js está instalado
             if ! command -v node &> /dev/null; then
