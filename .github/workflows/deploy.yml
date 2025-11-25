@@ -48,7 +48,7 @@ jobs:
           fi
           echo "✅ Todos os secrets obrigatórios estão configurados"
 
-      - name: Verify SSH connection
+      - name: Verify SSH connection and prepare directory
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -57,6 +57,18 @@ jobs:
           port: ${{ secrets.VPS_PORT || 22 }}
           script: |
             echo "✅ Conexão SSH estabelecida com sucesso!"
+            echo "📁 Preparando diretório de deploy..."
+            # Expandir ~ para o caminho completo
+            DEPLOY_PATH="${{ secrets.VPS_DEPLOY_PATH }}"
+            if [[ "$DEPLOY_PATH" == ~* ]]; then
+              DEPLOY_PATH="${DEPLOY_PATH/#\~/$HOME}"
+            fi
+            echo "Caminho: $DEPLOY_PATH"
+            # Criar diretório se não existir
+            mkdir -p "$DEPLOY_PATH"
+            # Garantir permissões corretas
+            chmod 755 "$DEPLOY_PATH"
+            echo "✅ Diretório preparado: $DEPLOY_PATH"
             pwd
             whoami
 
@@ -70,7 +82,7 @@ jobs:
           source: "."
           target: ${{ secrets.VPS_DEPLOY_PATH }}
           strip_components: 0
-          rm: true
+          overwrite: true
 
       - name: Execute deployment commands on VPS
         uses: appleboy/ssh-action@v1.0.3
