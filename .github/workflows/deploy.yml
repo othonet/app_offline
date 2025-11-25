@@ -30,6 +30,24 @@ jobs:
       - name: Build CSS
         run: npx tailwindcss -i ./src/public/css/input.css -o ./src/public/css/output.css --minify
 
+      - name: Check required secrets
+        run: |
+          if [ -z "${{ secrets.VPS_HOST }}" ]; then
+            echo "❌ ERRO: Secret VPS_HOST não está configurado!"
+            echo "Acesse: https://github.com/othonet/app_offline/settings/secrets/actions"
+            echo "Adicione o secret VPS_HOST com o valor: srv1150760.hstgr.cloud"
+            exit 1
+          fi
+          if [ -z "${{ secrets.VPS_USER }}" ]; then
+            echo "❌ ERRO: Secret VPS_USER não está configurado!"
+            exit 1
+          fi
+          if [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then
+            echo "❌ ERRO: Secret VPS_SSH_KEY não está configurado!"
+            exit 1
+          fi
+          echo "✅ Todos os secrets obrigatórios estão configurados"
+
       - name: Verify SSH connection
         uses: appleboy/ssh-action@v1.0.3
         with:
